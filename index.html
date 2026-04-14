@@ -2193,9 +2193,19 @@ function loadDataForUser(){
   }
   showLoadingScreen('Connessione al server...','Recupero dati in corso');
   setConnStatus(null,'Connessione...');
-  fetch(SCRIPT_URL+'?action=load')
-    .then(function(r){return r.json();})
-    .then(function(res){
+  fetch(SCRIPT_URL+'?action=load', {
+    method:'GET',
+    redirect:'follow',
+    cache:'no-cache'
+  })
+    .then(function(r){
+      if(!r.ok&&r.status!==0)throw new Error('HTTP '+r.status);
+      return r.text();
+    })
+    .then(function(txt){
+      var res;
+      try{res=JSON.parse(txt);}
+      catch(e){throw new Error('Risposta non valida: '+txt.substring(0,100));}
       if(res.ok&&res.data){
         S.brands=res.data.brands||[];
         S.subgroups=res.data.subgroups||[];
@@ -2213,10 +2223,11 @@ function loadDataForUser(){
         showUserError('⚠️ '+(res.error||'Risposta non valida dal server'));
       }
     })
-    .catch(function(){
+    .catch(function(err){
       hideLoadingScreen();
       setConnStatus(false,'Offline');
       showUserError('📴 Impossibile connettersi al server');
+      console.error('loadDataForUser error:',err);
     });
 }
 
