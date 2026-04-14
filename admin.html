@@ -445,9 +445,22 @@ function bindStatic(){
   // Cerca compat
   document.getElementById('mc-srch').oninput=renderCmpList;
   // Upload foto gruppo (modale)
-  setupUZ('uz-grp','f-grp',function(data){_gPhoto=data;var p=document.getElementById('prev-grp');p.src=data;p.style.display='block';});
-  // Upload foto accessorio (modale)
-  setupUZ('uz-acc','f-acc',function(data){_aPhoto=data;var p=document.getElementById('prev-acc');p.src=data;p.style.display='block';});
+  setupUZ('uz-grp','f-grp',function(data){
+    _gPhoto=data;
+    var p=document.getElementById('prev-grp');
+    // Mostra sempre l'anteprima — sia base64 che URL Drive
+    p.src=data; p.style.display='block';
+    // Nascondi testo placeholder
+    var txt=document.querySelector('#uz-grp p');
+    if(txt) txt.style.display='none';
+  });
+  setupUZ('uz-acc','f-acc',function(data){
+    _aPhoto=data;
+    var p=document.getElementById('prev-acc');
+    p.src=data; p.style.display='block';
+    var txt=document.querySelector('#uz-acc p');
+    if(txt) txt.style.display='none';
+  });
 }
 
 function setupUZ(uzId,fId,cb){
@@ -469,31 +482,32 @@ function readFile(f, cb) {
     img.onload=function(){
       var outData;
       if(img.width<=MAX && img.height<=MAX){
-        // Immagine già piccola — usa originale senza toccarla
         outData=src;
       } else {
-        // Ridimensiona — mantieni PNG se era PNG (per trasparenza), altrimenti JPEG
         var cv=document.createElement('canvas');
         var ratio=Math.min(MAX/img.width,MAX/img.height);
         cv.width=Math.round(img.width*ratio);
         cv.height=Math.round(img.height*ratio);
         var ctx=cv.getContext('2d');
-        // Sfondo bianco solo per JPEG (i PNG mantengono trasparenza)
         if(!isPNG){ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);}
         ctx.drawImage(img,0,0,cv.width,cv.height);
-        var outMime = isPNG ? 'image/png' : 'image/jpeg';
-        var outQ    = isPNG ? 1.0 : Q;
-        outData=cv.toDataURL(outMime, outQ);
+        var outMime=isPNG?'image/png':'image/jpeg';
+        outData=cv.toDataURL(outMime, isPNG?1.0:Q);
         var kb2=Math.round(outData.length*3/4/1024);
         toast('Foto ridimensionata: '+img.width+'x'+img.height+'px → '+cv.width+'x'+cv.height+'px ('+kb2+'KB)');
       }
-      // Upload su Drive se configurato
+      // Mostra subito l'anteprima locale (base64)
+      cb(outData);
+      // In parallelo, carica su Drive e aggiorna con URL Drive
       var scriptUrl=localStorage.getItem('sca_script_url')||'';
       var scriptPwd=localStorage.getItem('sca_script_pwd')||'';
       if(scriptUrl){
-        uploadToDrive(f.name, outData, scriptUrl, scriptPwd, cb);
-      } else {
-        cb(outData);
+        uploadToDrive(f.name, outData, scriptUrl, scriptPwd, function(driveUrl){
+          // Aggiorna solo se è un URL Drive (non base64 fallback)
+          if(driveUrl && driveUrl.startsWith('http')){
+            cb(driveUrl);
+          }
+        });
       }
     };
     img.src=src;
