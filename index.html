@@ -611,11 +611,12 @@ body:not(.is-admin) .dbox-clickable .dbox-in::after{display:none!important}
 var IS_ADMIN = false; // false = user sola lettura, true = admin completo
 
 // ═══ SCRIPT URL ════════════════════════════════════════════════════
-// Unica fonte: legge da localStorage (configurato dall'admin)
-// Il fallback vuoto fa sì che il viewer mostri errore se non configurato
+// URL hardcoded — stabile, non cambia tra distribuzioni
+// localStorage ha priorità (permette override in caso di cambio URL)
+var SCRIPT_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbxv1I6adPLVcHb9ek33-lz08W4nAx7LBWsRnbc8MwBOlFXAW1gskGjGUxaBCn29ehTK/exec';
 var SCRIPT_URL = (function(){
-  try{return localStorage.getItem('sca_script_url')||'';}
-  catch(e){return '';}
+  try{return localStorage.getItem('sca_script_url')||SCRIPT_URL_DEFAULT;}
+  catch(e){return SCRIPT_URL_DEFAULT;}
 })();
 
 // ═══ HASH PASSWORD ════════════════════════════════════════════════
