@@ -166,16 +166,21 @@ body:not(.is-admin) .d-photo:hover::after{display:none!important}
 .asec-t{font-size:12px;font-weight:700;color:var(--navy);margin:18px 0 10px;
   display:flex;align-items:center;gap:8px}
 .asec-t::after{content:"";flex:1;height:1px;background:var(--mg)}
-.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:16px}
-.ac{background:#fff;border-radius:8px;overflow:hidden;border:2px solid var(--mg);transition:.15s;text-align:center}
+.ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:16px}
+.ac{background:#fff;border-radius:10px;overflow:hidden;border:2px solid var(--mg);transition:.15s;text-align:center;position:relative}
 .ac.cv{border-color:#2E7D3230;background:#F1FBF3}.ac.co{border-color:#F5A62330;background:#FFFBF0}
-.ac:hover{box-shadow:0 3px 12px #0002;transform:translateY(-1px)}
-.ac-bar{height:4px}.ac-photo{height:72px;display:flex;align-items:center;justify-content:center;
-  background:#fff;overflow:hidden;padding:4px}
-.ac-photo img{max-width:100%;max-height:64px;width:auto;height:auto;object-fit:contain}
-.ac-body{padding:6px 6px 7px}.ac-code{font-size:9.5px;font-weight:700;color:var(--orange);margin-bottom:2px}
-.ac-name{font-size:8px;color:var(--dg);line-height:1.3}
-.ac-badge{font-size:8px;font-weight:700;padding:2px 5px;border-radius:7px;display:inline-block;margin-top:3px}
+.ac:hover{box-shadow:0 4px 16px #0002;transform:translateY(-2px)}
+.ac-bar{height:5px}.ac-photo{height:144px;display:flex;align-items:center;justify-content:center;
+  background:#fff;overflow:hidden;padding:8px}
+.ac-photo img{max-width:100%;max-height:128px;width:auto;height:auto;object-fit:contain}
+.ac-body{padding:10px 10px 12px}.ac-code{font-size:12px;font-weight:700;color:var(--orange);margin-bottom:4px}
+.ac-name{font-size:11px;color:var(--dg);line-height:1.4}
+.ac-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;display:inline-block;margin-top:5px}
+.ac-remove{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;
+  background:#B71C1C;color:#fff;border:none;font-size:13px;cursor:pointer;display:none;
+  align-items:center;justify-content:center;line-height:1;transition:.15s;z-index:2}
+.ac-remove:hover{background:#D32F2F;transform:scale(1.1)}
+body.is-admin .ac:hover .ac-remove{display:flex}
 
 /* ── ACC FULL PAGE ── */
 .afg{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:13px}
@@ -362,7 +367,9 @@ body:not(.is-admin) .dbox-clickable .dbox-in::after{display:none!important}
     <button class="btn bs bsm admin-only" id="btn-brands">🏷️ Marchi</button>
     <button class="btn bo bsm admin-only" id="btn-exp">💾 Esporta</button>
     <button class="btn bg bsm admin-only" id="btn-pub">☁️ Pubblica</button>
-    <button class="btn bs bsm admin-only" id="btn-imp">📂 Importa</button>
+    <button class="btn bs bsm admin-only" id="btn-imp">📂 Importa JSON</button>
+    <button class="btn bo bsm admin-only" id="btn-import-xl">📊 Import Excel</button>
+    <button class="btn bo bsm admin-only" id="btn-import-img">🖼️ Import Immagini</button>
     <button class="btn bsm admin-only" id="btn-logout" style="background:#455A64;color:#fff;border:none">🔓 Esci</button>
     <input type="file" id="imp-file" accept=".json" style="display:none">
   </div>
@@ -562,6 +569,96 @@ body:not(.is-admin) .dbox-clickable .dbox-in::after{display:none!important}
     <button class="btn bs" id="mb-parse-btn">🔍 Analizza</button>
     <button class="btn bs" data-close="bulk-acc">Annulla</button>
     <button class="btn bg" id="mb-save-btn" style="display:none">✅ Importa <span id="mb-save-cnt"></span> accessori</button>
+  </div>
+</div></div>
+
+<!-- MODAL IMPORT EXCEL ================================================ -->
+<div class="ov" id="ov-import-xl"><div class="modal wide" style="max-width:780px">
+  <div class="mh">
+    <div class="mh-t" id="ixl-title">📊 Importa da Excel</div>
+    <button class="mh-x" data-close="import-xl">&times;</button>
+  </div>
+  <div class="mb" id="ixl-body">
+    <!-- Step 1: Carica file -->
+    <div id="ixl-step1">
+      <p style="font-size:13px;color:var(--dg);margin-bottom:16px">
+        Carica il file <strong>compatibili.xlsx</strong> e/o <strong>specifiche.xlsx</strong>.
+        Puoi caricarli insieme o separatamente.
+      </p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div class="uz" id="uz-compat" style="min-height:120px">
+          <div id="uz-compat-label">
+            <div style="font-size:24px;margin-bottom:6px">📋</div>
+            <p style="font-weight:700;color:var(--navy);font-size:12px">compatibili.xlsx</p>
+            <p style="font-size:11px;color:var(--dg)">Drag & drop o clicca</p>
+          </div>
+        </div>
+        <div class="uz" id="uz-spec" style="min-height:120px">
+          <div id="uz-spec-label">
+            <div style="font-size:24px;margin-bottom:6px">📊</div>
+            <p style="font-weight:700;color:var(--navy);font-size:12px">specifiche.xlsx</p>
+            <p style="font-size:11px;color:var(--dg)">Drag & drop o clicca</p>
+          </div>
+        </div>
+      </div>
+      <input type="file" id="fi-compat" accept=".xlsx" style="display:none">
+      <input type="file" id="fi-spec" accept=".xlsx" style="display:none">
+      <div id="ixl-files-status" style="margin-top:12px;font-size:12px;color:var(--dg);text-align:center"></div>
+    </div>
+
+    <!-- Step 2: Selezione colonne specifiche -->
+    <div id="ixl-step2" style="display:none">
+      <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px">Seleziona le colonne da importare</p>
+      <p style="font-size:11px;color:var(--dg);margin-bottom:12px">Le colonne in grigio sono obbligatorie. Spunta quelle aggiuntive che vuoi includere nelle specifiche tecniche.</p>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="btn bs bsm" id="ixl-selall">Seleziona tutte</button>
+        <button class="btn bs bsm" id="ixl-selnone">Deseleziona tutte</button>
+      </div>
+      <div id="ixl-cols-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;max-height:320px;overflow-y:auto;border:1px solid var(--mg);border-radius:6px;padding:10px"></div>
+    </div>
+
+    <!-- Step 3: Anteprima e conferma -->
+    <div id="ixl-step3" style="display:none">
+      <div id="ixl-preview-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px"></div>
+      <div style="max-height:260px;overflow-y:auto;border:1px solid var(--mg);border-radius:6px">
+        <table style="width:100%;border-collapse:collapse;font-size:11px" id="ixl-preview-table">
+          <thead id="ixl-preview-head"></thead>
+          <tbody id="ixl-preview-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="mf" id="ixl-footer">
+    <button class="btn bs" id="ixl-back" style="margin-right:auto;display:none">← Indietro</button>
+    <button class="btn bs" data-close="import-xl">Annulla</button>
+    <button class="btn bp" id="ixl-next">Avanti →</button>
+  </div>
+</div></div>
+
+<!-- MODAL IMPORT IMMAGINI ============================================ -->
+<div class="ov" id="ov-import-img"><div class="modal" style="max-width:560px">
+  <div class="mh">
+    <div class="mh-t">🖼️ Importa Immagini</div>
+    <button class="mh-x" data-close="import-img">&times;</button>
+  </div>
+  <div class="mb">
+    <p style="font-size:12px;color:var(--dg);margin-bottom:12px">
+      Seleziona o trascina le immagini. Il nome del file deve corrispondere esattamente al codice del prodotto (es. <code style="background:var(--lg);padding:1px 5px;border-radius:3px">UV-NVR301-04S3.jpg</code>).
+    </p>
+    <div class="uz" id="uz-imgs" style="min-height:140px">
+      <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+      <p style="font-weight:700;color:var(--navy);font-size:13px">Trascina le immagini qui</p>
+      <p style="font-size:11px;color:var(--dg)">oppure clicca per selezionare (selezione multipla)</p>
+    </div>
+    <input type="file" id="fi-imgs" accept="image/*" multiple style="display:none">
+    <div id="img-import-report" style="margin-top:14px;display:none">
+      <div class="asec-t">Report importazione</div>
+      <div id="img-report-body" style="font-size:12px;max-height:200px;overflow-y:auto"></div>
+    </div>
+  </div>
+  <div class="mf">
+    <button class="btn bs" data-close="import-img">Chiudi</button>
+    <button class="btn bg" id="btn-do-import-img" style="display:none">✅ Associa <span id="img-count"></span> immagini</button>
   </div>
 </div></div>
 
@@ -791,6 +888,8 @@ function bindStatic(){
   document.getElementById('btn-pub').onclick=publishData;
   document.getElementById('btn-imp').onclick=function(){document.getElementById('imp-file').click();};
   document.getElementById('imp-file').onchange=importData;
+  document.getElementById('btn-import-xl').onclick=function(){openImportXL();};
+  document.getElementById('btn-import-img').onclick=function(){openImportImg();};
   document.querySelectorAll('[data-close]').forEach(function(el){
     el.onclick=function(){closeModal(el.dataset.close);};
   });
@@ -820,6 +919,9 @@ function bindStatic(){
     sessionStorage.removeItem('adm');
     enterUserMode();
   };
+  // Bind wizard import Excel e immagini
+  _ixlBindWizard();
+  _bindImportImg();
   // Tasto Admin nella topbar (visibile in user mode)
   document.getElementById('btn-goto-admin').onclick=function(){
     document.getElementById('mode-select').style.display='none';
@@ -1054,6 +1156,17 @@ function renderSidebar(){
   });
 }
 
+// ═══ SEARCH FOCUS HELPER ═════════════════════════════════════════
+// Dopo render() rimette il focus e il cursore al campo di ricerca
+function _refocus(inputId, val){
+  var el=document.getElementById(inputId);
+  if(!el)return;
+  el.focus();
+  // Cursore alla fine
+  var len=el.value?el.value.length:0;
+  try{el.setSelectionRange(len,len);}catch(e){}
+}
+
 // ═══ HOME BRAND ═══════════════════════════════════════════════════
 function renderBrandHome(m){
   var b=S.brands.find(function(x){return x.id===S.cur.brand;});
@@ -1093,11 +1206,52 @@ function renderBrandHome(m){
     }
   }
   var grid=document.getElementById('sg-grid');
-  if(!sgs.length){
+  // Gruppi diretti nel brand (senza sottogruppo — importati da Excel)
+  var directGroups=S.groups.filter(function(g){return g.brand===S.cur.brand&&!g.subgroup;});
+  if(!sgs.length&&!directGroups.length){
     grid.innerHTML='<div class="empty" style="grid-column:1/-1"><div style="font-size:38px;opacity:.3">📁</div>'+
       '<p style="font-size:15px;font-weight:700;margin:8px 0">Nessun sottogruppo</p>'+
-      '<p>Clicca "+ Nuovo Sottogruppo" per iniziare</p></div>';
+      '<p>Clicca "+ Nuovo Sottogruppo" o importa da Excel</p></div>';
     return;
+  }
+  // Se ci sono gruppi diretti, mostrali come griglia
+  if(directGroups.length){
+    var dgh=document.createElement('div');
+    dgh.style.cssText='margin-bottom:18px';
+    dgh.innerHTML='<div class="asec-t">Prodotti ('+directGroups.length+')</div>';
+    var dgg=document.createElement('div');dgg.className='gg';
+    var q=(window._bhq||'').toLowerCase();
+    var fl=directGroups.filter(function(g){return !q||g.name.toLowerCase().includes(q)||(g.specs&&(g.specs['Gamma']||'').toLowerCase().includes(q));});
+    fl.forEach(function(g){
+      var gc=g.color||b.color||'#1460B8';
+      var nv=(g.compatible||[]).length;
+      var card=document.createElement('div');card.className='gc';
+      card.innerHTML=
+        '<div class="gc-bar" style="background:'+gc+'"></div>'+
+        '<div class="gc-img">'+(g.photo?'<img src="'+g.photo+'">':'<div class="gc-nophoto">📦<br>'+g.name+'</div>')+'</div>'+
+        '<div class="gc-body"><div class="gc-name">'+g.name+'</div>'+
+        '<div class="gc-tags">'+
+        (g.specs&&g.specs['Gamma']?'<span class="tag" style="background:#EBF3FF;color:#1460B8">'+g.specs['Gamma']+'</span>':'')+
+        '<span class="tag" style="background:#E8F5E9;color:#2E7D32">'+nv+' compat.</span>'+
+        '</div></div>';
+      card.onclick=function(){S.cur.group=g.id;render();};
+      if(IS_ADMIN)card.ondblclick=function(e){e.stopPropagation();openGrpModal(g.id,'');};
+      dgg.appendChild(card);
+    });
+    // Ricerca per gruppi diretti
+    var srchRow=document.createElement('div');
+    srchRow.style.cssText='display:flex;gap:8px;align-items:center;margin-bottom:12px';
+    srchRow.innerHTML='<div class="srch"><input id="bh-srch" placeholder="Cerca prodotto..." value="'+(window._bhq||'')+'"></div>';
+    dgh.appendChild(srchRow);
+    dgh.appendChild(dgg);
+    grid.appendChild(dgh);
+    document.getElementById('bh-srch').oninput=function(){
+      window._bhq=this.value;
+      renderBrandHome(m);
+      _refocus('bh-srch');
+    };
+    if(window._bhq){var si=document.getElementById('bh-srch');if(si){si.style.background='#FFFF00';si.style.fontWeight='700';}}
+    if(!sgs.length)return;
   }
   sgs.forEach(function(sg){
     var c=sg.color||(b?b.color:'#1460B8');
@@ -1157,9 +1311,8 @@ function renderSgDetail(m){
   }
   document.getElementById('sg-srch').oninput=function(){
     window._sgq=this.value;
-    this.style.background=this.value?'#FFFF00':'';
-    this.style.fontWeight=this.value?'700':'';
     renderSgDetail(m);
+    _refocus('sg-srch');
   };
   if(window._sgq){
     var si=document.getElementById('sg-srch');
@@ -1193,16 +1346,51 @@ function renderSgDetail(m){
   });
 }
 
+// ═══ LOOKUP UNIVERSALE ═══════════════════════════════════════════
+// Restituisce un dizionario id→entity di tutti gli elementi del database
+// (gruppi, accessori generali, accessori marchio)
+function allEntities(){
+  var map={};
+  // Indicizza per ID (chiave primaria)
+  S.groups.forEach(function(g){
+    map[g.id]={type:'group',obj:g};
+    // Indicizza anche per name (codice prodotto) come chiave alternativa
+    // così i compatibili salvati come codice (non ancora risolti in ID) vengono trovati
+    if(g.name&&g.name!==g.id)map[g.name]={type:'group',obj:g};
+  });
+  S.accessories.forEach(function(a){
+    map[a.id]={type:'acc',obj:a};
+    if(a.code&&a.code!==a.id)map[a.code]={type:'acc',obj:a};
+  });
+  (S.brand_accessories||[]).forEach(function(a){
+    map[a.id]={type:'bacc',obj:a};
+    if(a.code&&a.code!==a.id)map[a.code]={type:'bacc',obj:a};
+  });
+  return map;
+}
+
+// Restituisce lista piatta di tutti gli elementi (per render card compatibili)
+function allEntitiesList(){
+  return S.groups.map(function(g){return{_type:'group',id:g.id,code:g.name,name:g.specs?g.specs['Gamma']||'':g.name,photo:g.photo||'',brand:g.brand||''};})
+    .concat(S.accessories.map(function(a){return{_type:'acc',id:a.id,code:a.code,name:a.name,photo:a.photo||'',brand:''};}))
+    .concat((S.brand_accessories||[]).map(function(a){return{_type:'bacc',id:a.id,code:a.code,name:a.name,photo:a.photo||'',brand:a.brand||''};}));
+}
+
 // ═══ DETTAGLIO GRUPPO ═════════════════════════════════════════════
 function renderGroupDetail(m){
   var g=S.groups.find(function(x){return x.id===S.cur.group;});
   if(!g){S.cur.group=null;renderSgDetail(m);return;}
   var sg=S.subgroups.find(function(x){return x.id===g.subgroup;})||{color:'#1460B8'};
   var c=g.color||sg.color||'#1460B8';
-  var allAccs=S.accessories.concat(S.brand_accessories||[]);
-  var acv=(g.compatible||[]).map(function(id){return allAccs.find(function(a){return a.id===id;});}).filter(Boolean);
+  // Risolve compatible/optional su dizionario universale (gruppi + accessori)
+  var _emap=allEntities();
+  var acv=(g.compatible||[]).map(function(id){return _emap[id]?_emap[id].obj:null;}).filter(Boolean);
   var aco=(g.optional||[]).filter(function(id){return!(g.compatible||[]).includes(id);})
-            .map(function(id){return allAccs.find(function(a){return a.id===id;});}).filter(Boolean);
+            .map(function(id){return _emap[id]?_emap[id].obj:null;}).filter(Boolean);
+  // Compatibilità bidirezionale: altri gruppi che hanno questo gruppo in compatible[]
+  var bidir=S.groups.filter(function(og){
+    return og.id!==g.id&&(og.compatible||[]).includes(g.id);
+  });
 
   var html=
     '<div class="ph ph-col">'+
@@ -1226,16 +1414,30 @@ function renderGroupDetail(m){
     '<input type="file" id="gf-inp" accept="image/*" style="display:none">'+
     '<div class="d-info"><div class="d-title">'+g.name+'</div>'+
     '<div class="d-pills">'+
-    '<span class="pill" style="background:'+c+'">'+(g.models||[]).length+' Modelli</span>'+
+    (g.specs&&g.specs['Marca']?'<span class="pill" style="background:var(--dg)">'+g.specs['Marca']+'</span>':'')+
+    (g.specs&&g.specs['Gamma']?'<span class="pill" style="background:var(--blue)">'+g.specs['Gamma']+'</span>':'')+
     '<span class="pill" style="background:var(--green)">'+acv.length+' Compatibili</span>'+
     (aco.length?'<span class="pill" style="background:var(--orange)">'+aco.length+' Opzionali</span>':'')+
+    (bidir.length?'<span class="pill" style="background:#6A1B9A">'+bidir.length+' Compatibile con</span>':'')+
     '</div>'+
-    '<div class="d-models">'+(g.models||[]).slice(0,10).join(' · ')+((g.models||[]).length>10?' · …':'')+
+    // Specifiche tecniche (se presenti)
+    (g.specs&&Object.keys(g.specs).filter(function(k){return k!=='Marca'&&k!=='Gamma'&&k!=='Codice prodotto'&&g.specs[k];}).length?
+      '<div id="specs-toggle" style="font-size:11px;color:var(--blue);cursor:pointer;margin-top:4px">▶ Mostra specifiche tecniche</div>'+
+      '<div id="specs-body" style="display:none;margin-top:8px;font-size:11px;color:var(--dark);line-height:2">'+
+      Object.keys(g.specs).filter(function(k){return k!=='Marca'&&k!=='Gamma'&&k!=='Codice prodotto'&&g.specs[k];}).map(function(k){
+        return'<div style="display:flex;gap:8px;border-bottom:1px solid var(--lg);padding:3px 0">'+
+          '<span style="color:var(--dg);min-width:160px;flex-shrink:0">'+k+'</span>'+
+          '<span>'+g.specs[k]+'</span></div>';
+      }).join('')+
+      '</div>':'')+ 
     '</div></div></div></div>';
 
-  if(acv.length) html+='<div class="asec-t">✅ Compatibili ('+acv.length+')</div><div class="ag">'+acv.map(function(a){return accCard(a,'v',c);}).join('')+'</div>';
-  if(aco.length) html+='<div class="asec-t">⚪ Opzionali ('+aco.length+')</div><div class="ag">'+aco.map(function(a){return accCard(a,'o',c);}).join('')+'</div>';
-  if(!acv.length&&!aco.length) html+='<div style="background:#F0FBF0;border-radius:10px;padding:40px;text-align:center;margin-top:10px"><div style="font-size:38px;margin-bottom:8px">✅</div><div style="font-size:15px;font-weight:700;color:var(--green)">Staffa integrata</div><div style="font-size:12px;color:var(--dg);margin-top:4px">Nessun accessorio esterno necessario</div></div>';
+  // Compatibili (prodotti + accessori)
+  if(acv.length) html+='<div class="asec-t">✅ Compatibili ('+acv.length+')</div><div class="ag">'+acv.map(function(a){return entityCard(a,'v',c,_emap);}).join('')+'</div>';
+  if(aco.length) html+='<div class="asec-t">⚪ Opzionali ('+aco.length+')</div><div class="ag">'+aco.map(function(a){return entityCard(a,'o',c,_emap);}).join('')+'</div>';
+  // Bidirezionale: prodotti che includono questo in compatible[]
+  if(bidir.length) html+='<div class="asec-t">🔄 Compatibile con ('+bidir.length+')</div><div class="ag">'+bidir.map(function(gr){return entityCard(gr,'bidir',c,_emap);}).join('')+'</div>';
+  if(!acv.length&&!aco.length&&!bidir.length) html+='<div style="background:#F0FBF0;border-radius:10px;padding:40px;text-align:center;margin-top:10px"><div style="font-size:38px;margin-bottom:8px">✅</div><div style="font-size:15px;font-weight:700;color:var(--green)">Nessuna compatibilità assegnata</div></div>';
 
   m.innerHTML=html;
 
@@ -1265,6 +1467,46 @@ function renderGroupDetail(m){
     });
   }
 
+  // Bind bottoni rimozione compatibilità (solo admin)
+  if(IS_ADMIN){
+    m.querySelectorAll('.ac-remove').forEach(function(btn){
+      btn.onclick=function(e){
+        e.stopPropagation();
+        var card=btn.closest('[data-aid]');
+        if(!card)return;
+        var aid=card.dataset.aid;
+        var atype=card.dataset.atype;
+        askConfirm('Rimuovere questa compatibilità?',function(){
+          if(atype==='v'){
+            g.compatible=g.compatible.filter(function(x){return x!==aid;});
+          } else if(atype==='o'){
+            g.optional=g.optional.filter(function(x){return x!==aid;});
+          }
+          save();
+          renderGroupDetail(m);
+          toast('Compatibilità rimossa');
+        },'Rimuovi');
+      };
+    });
+  }
+
+  // Toggle specifiche tecniche
+  var stog=document.getElementById('specs-toggle');
+  var sbod=document.getElementById('specs-body');
+  if(stog&&sbod){
+    stog.onclick=function(){
+      var open=sbod.style.display==='none';
+      sbod.style.display=open?'block':'none';
+      stog.textContent=(open?'▼':'▶')+' '+(open?'Nascondi':'Mostra')+' specifiche tecniche';
+    };
+  }
+  // Click su card bidirezionale → naviga al gruppo
+  m.querySelectorAll('.bidir-card').forEach(function(card){
+    card.onclick=function(){
+      S.cur.group=card.dataset.gid;render();
+    };
+  });
+
   document.getElementById('gd-back').onclick=function(){S.cur.group=null;render();};
   if(IS_ADMIN){
     document.getElementById('gd-cmp').onclick=function(){openCmp(g.id);};
@@ -1282,16 +1524,45 @@ function renderGroupDetail(m){
   }
 }
 
+// entityCard — renderizza qualsiasi entità compatibile (gruppo o accessorio)
+function entityCard(a,t,c,emap){
+  if(!a)return '';
+  var emap2=emap||allEntities();
+  var isGroup=!!(emap2[a.id]&&emap2[a.id].type==='group');
+  if(isGroup) return groupCompatCard(a,t,c);
+  return accCard(a,t,c);
+}
+
+// Card per un gruppo compatibile (prodotto ↔ prodotto)
+function groupCompatCard(g,t,c){
+  var stripe=t==='v'?c:(t==='bidir'?'#6A1B9A':'#F5A623');
+  var badge=t==='v'?'<span class="ac-badge" style="background:#E8F5E9;color:#2E7D32">Compatibile</span>':
+    t==='bidir'?'<span class="ac-badge" style="background:#F3E5F5;color:#6A1B9A">🔄 Compatibile con</span>':
+    '<span class="ac-badge" style="background:#FFF8E1;color:#E65100">Opzionale</span>';
+  var marca=g.specs&&g.specs['Marca']?g.specs['Marca']:'';
+  var gamma=g.specs&&g.specs['Gamma']?g.specs['Gamma']:'';
+  var cls='gc-compat'+(t==='bidir'?' bidir-card':'');
+  return '<div class="ac cv '+cls+'" data-gid="'+g.id+'" data-aid="'+g.id+'" data-atype="'+t+'" style="cursor:pointer;position:relative;border-color:#6A1B9A30;background:#FAF5FF">'+
+    (IS_ADMIN&&t!=='bidir'?'<button class="ac-remove" title="Rimuovi compatibilità">&times;</button>':'')+
+    '<div class="ac-bar" style="background:'+stripe+'"></div>'+
+    '<div class="ac-photo">'+(g.photo?'<img src="'+g.photo+'">':'<span style="font-size:24px">📦</span>')+'</div>'+
+    '<div class="ac-body">'+
+    '<div class="ac-code">'+g.name+'</div>'+
+    (marca||gamma?'<div class="ac-name">'+[marca,gamma].filter(Boolean).join(' · ')+'</div>':'')+
+    badge+'</div></div>';
+}
+
 function accCard(a,t,c){
   var stripe=t==='v'?c:'#F5A623';
-  var badge=t==='v'?'<span class="ac-badge" style="background:#E8F5E9;color:#2E7D32">✓ Compat.</span>':
-    '<span class="ac-badge" style="background:#FFF8E1;color:#E65100">⚪ Opz.</span>';
+  var badge=t==='v'?'<span class="ac-badge" style="background:#E8F5E9;color:#2E7D32">Compatibile</span>':
+    '<span class="ac-badge" style="background:#FFF8E1;color:#E65100">Opzionale</span>';
   var isBrand=!!(S.brand_accessories||[]).find(function(x){return x.id===a.id;});
   return '<div class="ac '+(t==='v'?'cv':'co')+(IS_ADMIN?' ac-clickable':'')+'" '+
-    (IS_ADMIN?'data-acid="'+a.id+'" data-acbrand="'+(isBrand?a.brand||'':'')+'" style="cursor:pointer;position:relative"':'style="position:relative"')+'>'+
+    (IS_ADMIN?'data-acid="'+a.id+'" data-acbrand="'+(isBrand?a.brand||'':'')+'"':'')+ ' data-aid="'+a.id+'" data-atype="'+t+'" style="position:relative">'+
+    (IS_ADMIN?'<button class="ac-remove" title="Rimuovi compatibilità">&times;</button>':'')+
     '<div class="ac-bar" style="background:'+stripe+'"></div>'+
     '<div class="ac-photo" style="position:relative">'+
-      (a.photo?'<img src="'+a.photo+'">':'<span style="font-size:20px">🔩</span>')+
+      (a.photo?'<img src="'+a.photo+'">':'<span style="font-size:26px">🔩</span>')+
       (IS_ADMIN?'<div class="ac-edit-overlay" style="position:absolute;inset:0;background:#1460B8CC;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s;border-radius:2px">✏️ Modifica</div>':'')+
     '</div>'+
     '<div class="ac-body"><div class="ac-code">'+a.code+'</div><div class="ac-name">'+a.name+'</div>'+badge+'</div></div>';
@@ -1336,9 +1607,8 @@ function renderAccPage(m){
     '</div></div><div id="acc-cats"></div>';
   document.getElementById('a-srch').oninput=function(){
     window._aq=this.value;
-    this.style.background=this.value?'#FFFF00':'';
-    this.style.fontWeight=this.value?'700':'';
     renderAccPage(m);
+    _refocus('a-srch');
   };
   if(window._aq){
     var si=document.getElementById('a-srch');
@@ -1399,9 +1669,8 @@ function renderBrandAccPage(m){
 
   document.getElementById('ba-srch').oninput=function(){
     window._baq=this.value;
-    this.style.background=this.value?'#FFFF00':'';
-    this.style.fontWeight=this.value?'700':'';
     renderBrandAccPage(m);
+    _refocus('ba-srch');
   };
   if(window._baq){
     var si=document.getElementById('ba-srch');
@@ -1640,7 +1909,15 @@ function deleteGrp(id){
   setTimeout(function(){
     askConfirm('Eliminare questo gruppo?',function(){
       S.groups=S.groups.filter(function(x){return x.id!==gid;});
-      if(S.cur.group===gid)S.cur.group=null;
+      // Rimuovi riferimenti nei compatible/optional di altri gruppi
+      S.groups.forEach(function(og){
+        if(og.compatible)og.compatible=og.compatible.filter(function(x){return x!==gid;});
+        if(og.optional)og.optional=og.optional.filter(function(x){return x!==gid;});
+      });
+      // Reset navigazione SEMPRE (non solo se cur.group===gid)
+      S.cur.group=null;
+      S.cur.sg=null;
+      S.cur.section='home';
       save();render();toast('Eliminato');
     });
   },150);
@@ -1826,7 +2103,51 @@ function renderCmpList(){
     el.appendChild(btnWrap);
   }
 
-  if(!el.children.length)el.innerHTML='<p style="color:var(--dg);font-size:12px">Nessun accessorio disponibile</p>';
+  // ── Sezione: altri Gruppi/Prodotti compatibili ──────────────────
+  var otherGroups=S.groups.filter(function(og){return og.id!==gid;});
+  if(otherGroups.length){
+    var secGrp=document.createElement('div');
+    secGrp.style.cssText='font-size:10px;font-weight:700;color:#fff;background:#6A1B9A;'+
+      'padding:4px 8px;border-radius:4px;margin:14px 0 6px;letter-spacing:.5px;text-transform:uppercase';
+    secGrp.textContent='Prodotti del Database';
+    el.appendChild(secGrp);
+
+    var qg=q;
+    var filteredGrps=otherGroups.filter(function(og){
+      return !qg||og.name.toLowerCase().includes(qg)||
+        (og.specs&&(og.specs['Gamma']||'').toLowerCase().includes(qg));
+    });
+
+    // Raggruppa per brand
+    var brands=[...new Set(filteredGrps.map(function(og){return og.brand||'Altro';}))].sort();
+    brands.forEach(function(brid){
+      var bItems=filteredGrps.filter(function(og){return (og.brand||'Altro')===brid;});
+      if(!bItems.length)return;
+      var bh=document.createElement('div');
+      bh.style.cssText='font-size:11px;font-weight:700;color:var(--navy);margin:10px 0 4px;'+
+        'padding-bottom:3px;border-bottom:1px solid var(--mg)';
+      bh.textContent=brid;el.appendChild(bh);
+      bItems.forEach(function(og){
+        var isV=(g.compatible||[]).includes(og.id);
+        var isO=(g.optional||[]).includes(og.id)&&!isV;
+        var row=document.createElement('div');row.className='cr';
+        row.innerHTML=
+          '<div class="cr-img">'+(og.photo?'<img src="'+og.photo+'">':'📦')+'</div>'+
+          '<div style="flex:1;min-width:0">'+
+          '<div style="font-size:11px;font-weight:700;color:#6A1B9A">'+og.name+'</div>'+
+          '<div style="font-size:10px;color:var(--dg)">'+(og.specs?[og.specs['Marca'],og.specs['Gamma']].filter(Boolean).join(' · '):'')+'</div></div>'+
+          '<select class="csel">'+
+          '<option value="">— Nessuno</option>'+
+          '<option value="v"'+(isV?' selected':'')+'>✅ Compatibile</option>'+
+          '<option value="o"'+(isO?' selected':'')+'>⚪ Opzionale</option>'+
+          '</select>';
+        row.querySelector('select').onchange=function(){setCompat(gid,og.id,this.value);};
+        el.appendChild(row);
+      });
+    });
+  }
+
+  if(!el.children.length)el.innerHTML='<p style="color:var(--dg);font-size:12px">Nessun elemento disponibile</p>';
 }
 function setCompat(gid,aid,val){
   var g=S.groups.find(function(x){return x.id===gid;});if(!g)return;
@@ -2109,6 +2430,469 @@ function saveBulkAcc(){
   });
   save();closeModal('bulk-acc');render();
   toast('✅ Aggiunti '+added+' accessori');
+}
+
+// ═══ IMPORT EXCEL ════════════════════════════════════════════════
+var _ixlState={step:1,compatRows:[],specRows:[],specHeaders:[],selectedCols:[],parsed:{}};
+
+function openImportXL(){
+  _ixlState={step:1,compatRows:[],specRows:[],specHeaders:[],selectedCols:[],parsed:{}};
+  _ixlShowStep(1);
+  openModal('import-xl');
+}
+
+function _ixlShowStep(n){
+  _ixlState.step=n;
+  document.getElementById('ixl-step1').style.display=n===1?'':'none';
+  document.getElementById('ixl-step2').style.display=n===2?'':'none';
+  document.getElementById('ixl-step3').style.display=n===3?'':'none';
+  document.getElementById('ixl-back').style.display=n>1?'inline-flex':'none';
+  var nextBtn=document.getElementById('ixl-next');
+  if(n===3){
+    nextBtn.textContent='✅ Importa';
+    nextBtn.className='btn bg';
+    nextBtn.disabled=false; // sempre abilitato allo step 3
+  }else{
+    nextBtn.textContent='Avanti →';
+    nextBtn.className='btn bp';
+  }
+  document.getElementById('ixl-title').textContent=
+    n===1?'📊 Importa da Excel — Step 1: Carica file':
+    n===2?'📊 Importa da Excel — Step 2: Seleziona colonne':
+    '📊 Importa da Excel — Step 3: Anteprima e conferma';
+}
+
+// Lettura Excel via SheetJS (caricato da CDN)
+function _loadSheetJS(cb){
+  if(window.XLSX){cb();return;}
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload=cb;
+  document.head.appendChild(s);
+}
+
+function _readXLSX(file,cb){
+  _loadSheetJS(function(){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var wb=XLSX.read(e.target.result,{type:'array'});
+      var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      cb(rows);
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function _setupDropZone(uzId,fiId,labelId,onFile){
+  var uz=document.getElementById(uzId);
+  var fi=document.getElementById(fiId);
+  if(!uz||!fi)return;
+  uz.onclick=function(){fi.click();};
+  uz.ondragover=function(e){e.preventDefault();uz.classList.add('over');};
+  uz.ondragleave=function(){uz.classList.remove('over');};
+  uz.ondrop=function(e){
+    e.preventDefault();uz.classList.remove('over');
+    var f=e.dataTransfer.files[0];
+    if(f)onFile(f,uz,labelId);
+  };
+  fi.onchange=function(){if(fi.files[0])onFile(fi.files[0],uz,labelId);fi.value='';};
+}
+
+function _onCompatFile(f,uz,labelId){
+  _readXLSX(f,function(rows){
+    _ixlState.compatRows=rows;
+    uz.style.borderColor='var(--green)';uz.style.background='#F1FBF3';
+    document.getElementById(labelId).innerHTML=
+      '<div style="font-size:20px">✅</div>'+
+      '<p style="font-weight:700;color:var(--green);font-size:12px">'+f.name+'</p>'+
+      '<p style="font-size:11px;color:var(--dg)">'+(rows.length-1)+' righe</p>';
+    _ixlUpdateStatus();
+  });
+}
+
+function _onSpecFile(f,uz,labelId){
+  _readXLSX(f,function(rows){
+    _ixlState.specRows=rows;
+    _ixlState.specHeaders=rows[0]||[];
+    uz.style.borderColor='var(--blue)';uz.style.background='#EBF3FF';
+    document.getElementById(labelId).innerHTML=
+      '<div style="font-size:20px">✅</div>'+
+      '<p style="font-weight:700;color:var(--blue);font-size:12px">'+f.name+'</p>'+
+      '<p style="font-size:11px;color:var(--dg)">'+(rows.length-1)+' prodotti · '+rows[0].length+' colonne</p>';
+    _ixlUpdateStatus();
+  });
+}
+
+function _ixlUpdateStatus(){
+  var hasC=_ixlState.compatRows.length>0;
+  var hasS=_ixlState.specRows.length>0;
+  var msgs=[];
+  if(hasC)msgs.push('✅ Compatibili caricato');
+  if(hasS)msgs.push('✅ Specifiche caricato');
+  if(!hasC&&!hasS)msgs.push('Carica almeno un file per continuare');
+  document.getElementById('ixl-files-status').textContent=msgs.join(' · ');
+  document.getElementById('ixl-next').disabled=(!hasC&&!hasS);
+}
+
+function _ixlBuildColSelector(){
+  var headers=_ixlState.specHeaders;
+  // Colonne obbligatorie (non modificabili)
+  var mandatory=['#','Codice prodotto','Marca','Gamma','Prodotti compatibili'];
+  var grid=document.getElementById('ixl-cols-grid');
+  grid.innerHTML='';
+  headers.forEach(function(h,i){
+    if(!h)return;
+    var isMand=mandatory.indexOf(h)>-1;
+    var checked=isMand||_ixlState.selectedCols.indexOf(h)>-1;
+    var div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:6px;padding:5px 7px;border-radius:5px;'+
+      'background:'+(isMand?'var(--lg)':'#fff')+';border:1px solid var(--mg);font-size:11px;cursor:'+(isMand?'default':'pointer');
+    var cb=document.createElement('input');
+    cb.type='checkbox';cb.checked=checked;cb.disabled=isMand;
+    cb.dataset.col=h;
+    if(!isMand)cb.onchange=function(){
+      var idx=_ixlState.selectedCols.indexOf(h);
+      if(this.checked&&idx===-1)_ixlState.selectedCols.push(h);
+      else if(!this.checked&&idx>-1)_ixlState.selectedCols.splice(idx,1);
+    };
+    var label=document.createElement('span');
+    label.textContent=h;label.style.flex='1';
+    if(isMand)label.style.fontWeight='700';
+    div.appendChild(cb);div.appendChild(label);
+    if(!isMand)div.onclick=function(e){if(e.target!==cb){cb.checked=!cb.checked;cb.onchange.call(cb);}};
+    grid.appendChild(div);
+  });
+  // Pre-seleziona colonne non-mandatory non ancora in selectedCols
+  if(_ixlState.selectedCols.length===0){
+    headers.forEach(function(h){
+      if(h&&mandatory.indexOf(h)===-1)_ixlState.selectedCols.push(h);
+    });
+    _ixlBuildColSelector(); // ri-render con selezione
+  }
+}
+
+function _ixlBuildPreview(){
+  var specRows=_ixlState.specRows;
+  var compatRows=_ixlState.compatRows;
+  var headers=_ixlState.specHeaders;
+  var selCols=['Codice prodotto','Marca','Gamma'].concat(
+    _ixlState.selectedCols.filter(function(c){return['Codice prodotto','Marca','Gamma','#','Prodotti compatibili'].indexOf(c)===-1;})
+  );
+
+  // Parse specifiche
+  var specMap={};
+  if(specRows.length>1){
+    specRows.slice(1).forEach(function(row){
+      var code=String(row[headers.indexOf('Codice prodotto')]||'').trim();
+      if(!code)return;
+      var obj={};
+      selCols.forEach(function(col){
+        var idx=headers.indexOf(col);
+        if(idx>-1&&row[idx]!==''&&row[idx]!==null&&row[idx]!==undefined)obj[col]=String(row[idx]);
+      });
+      // Aggiungi prodotti compatibili dall'ultima colonna
+      var pcIdx=headers.indexOf('Prodotti compatibili');
+      if(pcIdx>-1&&row[pcIdx])obj['_compat_spec']=String(row[pcIdx]);
+      specMap[code]=obj;
+    });
+  }
+
+  // Parse compatibili
+  var compatMap={};
+  if(compatRows.length>1){
+    compatRows.slice(1).forEach(function(row){
+      var src=String(row[1]||'').trim();
+      var dst=String(row[2]||'').trim();
+      if(!src||!dst)return;
+      if(!compatMap[src])compatMap[src]=[];
+      if(compatMap[src].indexOf(dst)===-1)compatMap[src].push(dst);
+    });
+  }
+
+  // Unisce i due
+  var allCodes=[...new Set(Object.keys(specMap).concat(Object.keys(compatMap)))];
+  _ixlState.parsed={specMap:specMap,compatMap:compatMap,allCodes:allCodes,selCols:selCols};
+
+  // Statistiche
+  var statsEl=document.getElementById('ixl-preview-stats');
+  var stats=[
+    {label:'Prodotti',val:allCodes.length,color:'var(--blue)'},
+    {label:'Con specifiche',val:Object.keys(specMap).length,color:'var(--green)'},
+    {label:'Con compatibili',val:Object.keys(compatMap).length,color:'var(--orange)'},
+    {label:'Colonne import',val:selCols.length,color:'var(--navy)'}
+  ];
+  statsEl.innerHTML=stats.map(function(s){
+    return'<div style="background:#fff;border-radius:8px;padding:12px;box-shadow:0 1px 5px #0001;text-align:center">'+
+      '<div style="font-size:22px;font-weight:800;color:'+s.color+'">'+s.val+'</div>'+
+      '<div style="font-size:11px;color:var(--dg)">'+s.label+'</div></div>';
+  }).join('');
+
+  // Tabella anteprima (prime 8 righe)
+  var thead=document.getElementById('ixl-preview-head');
+  var tbody=document.getElementById('ixl-preview-body');
+  var previewCols=['Codice prodotto','Marca','Gamma','Compatibili (n.)'];
+  thead.innerHTML='<tr style="background:var(--lg)">'+previewCols.map(function(c){
+    return'<th style="padding:6px 10px;text-align:left;font-size:11px;color:var(--navy)">'+c+'</th>';
+  }).join('')+'</tr>';
+  tbody.innerHTML=allCodes.slice(0,8).map(function(code){
+    var sp=specMap[code]||{};
+    var cm=compatMap[code]||[];
+    // Aggiungi compatibili da spec se non già presenti
+    if(sp['_compat_spec'])sp['_compat_spec'].split(',').forEach(function(c){c=c.trim();if(c&&cm.indexOf(c)===-1)cm.push(c);});
+    return'<tr style="border-bottom:1px solid var(--lg)">'+
+      '<td style="padding:5px 10px;font-weight:700;color:var(--orange);font-size:11px">'+code+'</td>'+
+      '<td style="padding:5px 10px;font-size:11px">'+(sp['Marca']||'—')+'</td>'+
+      '<td style="padding:5px 10px;font-size:11px">'+(sp['Gamma']||'—')+'</td>'+
+      '<td style="padding:5px 10px;font-size:11px">'+cm.length+'</td>'+
+      '</tr>';
+  }).join('');
+  if(allCodes.length>8){
+    tbody.innerHTML+='<tr><td colspan="4" style="padding:6px 10px;font-size:11px;color:var(--dg);font-style:italic">... e altri '+(allCodes.length-8)+' prodotti</td></tr>';
+  }
+}
+
+function _ixlDoImport(){
+  var p=_ixlState.parsed;
+  if(!p||!p.allCodes)return;
+  var specMap=p.specMap;var compatMap=p.compatMap;var allCodes=p.allCodes;
+
+  var created=0,updated=0;
+
+  // ── PASS 1: crea/aggiorna tutti i gruppi e i brand ─────────────
+  // Costruisce mappa nome→gId per risolvere i compatibili nel pass 2
+  var nameToId={};
+
+  allCodes.forEach(function(code){
+    var sp=specMap[code]||{};
+    var marca=sp['Marca']||'';
+
+    // Trova o crea brand
+    var brandId='';
+    if(marca){
+      var bObj=S.brands.find(function(b){return b.name.toLowerCase()===marca.toLowerCase();});
+      if(!bObj){
+        brandId='b_'+marca.toLowerCase().replace(/[^a-z0-9]/g,'_');
+        // Evita duplicati di id
+        var dup=S.brands.find(function(b){return b.id===brandId;});
+        if(!dup)S.brands.push({id:brandId,name:marca,color:'#1460B8'});
+      } else {brandId=bObj.id;}
+    }
+
+    // ID deterministico basato sul codice (stabile tra import successivi)
+    var gId='g_'+code.replace(/[^a-zA-Z0-9]/g,'_');
+
+    // Trova gruppo esistente per nome
+    var existing=S.groups.find(function(g){return g.name===code;});
+    if(existing){
+      if(Object.keys(sp).length)existing.specs=sp;
+      if(marca)existing.brand=brandId;
+      nameToId[code]=existing.id;
+      updated++;
+    } else {
+      var specs=Object.keys(sp).length?sp:null;
+      S.groups.push({
+        id:gId, name:code, subgroup:'', brand:brandId,
+        color:'#1460B8', desc:'', models:[], photo:'',
+        specs:specs, compatible:[], optional:[]
+      });
+      nameToId[code]=gId;
+      created++;
+    }
+  });
+
+  // ── PASS 2: risolve i codici compatibili in ID gruppo ──────────
+  // Ora tutti i gruppi esistono → possiamo risolvere gli ID
+  allCodes.forEach(function(code){
+    var sp=specMap[code]||{};
+    var cm=compatMap[code]||[];
+
+    // Aggiungi compatibili dalla colonna spec se presenti
+    if(sp['_compat_spec']){
+      sp['_compat_spec'].split(',').forEach(function(c){
+        c=c.trim();
+        if(c&&cm.indexOf(c)===-1)cm.push(c);
+      });
+    }
+
+    if(!cm.length)return;
+
+    var gId=nameToId[code];
+    var grp=S.groups.find(function(g){return g.id===gId;});
+    if(!grp)return;
+
+    // Converti ogni codice compatibile nel suo ID gruppo (o accessorio)
+    var resolvedIds=cm.map(function(compatCode){
+      compatCode=String(compatCode).trim();
+      if(!compatCode)return null;
+      // 1. Cerca per nome tra i gruppi già importati
+      var found=S.groups.find(function(g){return g.name===compatCode;});
+      if(found)return found.id;
+      // 2. Cerca tra gli accessori generali
+      var acc=S.accessories.find(function(a){return a.code===compatCode||a.id===compatCode;});
+      if(acc)return acc.id;
+      // 3. Cerca tra brand_accessories
+      var bacc=(S.brand_accessories||[]).find(function(a){return a.code===compatCode||a.id===compatCode;});
+      if(bacc)return bacc.id;
+      // 4. Non trovato: crea gruppo stub (prodotto compatibile senza specifiche)
+      var stubId='g_'+compatCode.replace(/[^a-zA-Z0-9]/g,'_');
+      var alreadyStub=S.groups.find(function(g){return g.id===stubId;});
+      if(!alreadyStub){
+        S.groups.push({
+          id:stubId, name:compatCode, subgroup:'', brand:'',
+          color:'#455A64', desc:'Prodotto compatibile', models:[],
+          photo:'', specs:null, compatible:[], optional:[]
+        });
+      }
+      return stubId;
+    }).filter(Boolean);
+
+    // Aggiunge senza duplicati
+    resolvedIds.forEach(function(rid){
+      if(grp.compatible.indexOf(rid)===-1)grp.compatible.push(rid);
+    });
+  });
+
+  save();
+  closeModal('import-xl');
+  render();
+  toast('✅ Import completato: '+created+' creati · '+updated+' aggiornati');
+}
+
+// Inizializza wizard al prossimo apertura
+function _ixlBindWizard(){
+  _setupDropZone('uz-compat','fi-compat','uz-compat-label',_onCompatFile);
+  _setupDropZone('uz-spec','fi-spec','uz-spec-label',_onSpecFile);
+
+  document.getElementById('ixl-selall').onclick=function(){
+    document.querySelectorAll('#ixl-cols-grid input[type=checkbox]:not(:disabled)').forEach(function(cb){
+      cb.checked=true;
+      var h=cb.dataset.col;
+      if(_ixlState.selectedCols.indexOf(h)===-1)_ixlState.selectedCols.push(h);
+    });
+  };
+  document.getElementById('ixl-selnone').onclick=function(){
+    document.querySelectorAll('#ixl-cols-grid input[type=checkbox]:not(:disabled)').forEach(function(cb){
+      cb.checked=false;
+    });
+    _ixlState.selectedCols=[];
+  };
+
+  document.getElementById('ixl-next').onclick=function(){
+    var step=_ixlState.step;
+    if(step===1){
+      var hasS=_ixlState.specRows.length>0;
+      if(hasS){_ixlBuildColSelector();_ixlShowStep(2);}
+      else{try{_ixlBuildPreview();}catch(err){toast('❌ Errore anteprima: '+err.message,'err');console.error(err);return;}_ixlShowStep(3);}
+    } else if(step===2){
+      try{_ixlBuildPreview();}catch(err){toast('❌ Errore anteprima: '+err.message,'err');console.error(err);return;}
+      _ixlShowStep(3);
+    } else if(step===3){
+      try{
+        _ixlDoImport();
+      }catch(err){
+        toast('❌ Errore import: '+err.message,'err');
+        console.error('_ixlDoImport error:',err);
+      }
+    }
+  };
+  document.getElementById('ixl-back').onclick=function(){
+    var step=_ixlState.step;
+    if(step===3&&_ixlState.specRows.length>0)_ixlShowStep(2);
+    else _ixlShowStep(1);
+  };
+  document.getElementById('ixl-next').disabled=true;
+}
+
+// ═══ IMPORT IMMAGINI ══════════════════════════════════════════════
+function openImportImg(){
+  document.getElementById('img-import-report').style.display='none';
+  document.getElementById('btn-do-import-img').style.display='none';
+  document.getElementById('img-report-body').innerHTML='';
+  document.getElementById('img-count').textContent='';
+  var uz=document.getElementById('uz-imgs');
+  uz.innerHTML='<div style="font-size:32px;margin-bottom:8px">🖼️</div>'+
+    '<p style="font-weight:700;color:var(--navy);font-size:13px">Trascina le immagini qui</p>'+
+    '<p style="font-size:11px;color:var(--dg)">oppure clicca per selezionare (selezione multipla)</p>';
+  openModal('import-img');
+}
+
+function _processImageFiles(files){
+  if(!files||!files.length)return;
+  // Costruisce mappa codice→entità (tutti i gruppi e accessori)
+  var codeMap={};
+  S.groups.forEach(function(g){codeMap[g.name.toUpperCase()]={type:'group',obj:g};});
+  S.accessories.forEach(function(a){codeMap[a.code.toUpperCase()]={type:'acc',obj:a};});
+  (S.brand_accessories||[]).forEach(function(a){codeMap[a.code.toUpperCase()]={type:'bacc',obj:a};});
+
+  var matched=[],notFound=[];
+  var pending=files.length;
+  var results=[];
+
+  Array.from(files).forEach(function(file){
+    var base=file.name.replace(/\.[^.]+$/,'').toUpperCase().trim();
+    var entity=codeMap[base];
+    if(!entity){notFound.push(file.name);pending--;if(pending===0)_showImgReport(matched,notFound);return;}
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var MAX=480,Q=0.82,isPNG=file.type==='image/png';
+      var img=new Image();
+      img.onload=function(){
+        var outData;
+        if(img.width<=MAX&&img.height<=MAX){outData=e.target.result;}
+        else{
+          var cv=document.createElement('canvas');
+          var ratio=Math.min(MAX/img.width,MAX/img.height);
+          cv.width=Math.round(img.width*ratio);cv.height=Math.round(img.height*ratio);
+          var ctx=cv.getContext('2d');
+          if(!isPNG){ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);}
+          ctx.drawImage(img,0,0,cv.width,cv.height);
+          outData=cv.toDataURL(isPNG?'image/png':'image/jpeg',isPNG?1.0:Q);
+        }
+        entity.obj.photo=outData;
+        matched.push(file.name);
+        pending--;if(pending===0)_showImgReport(matched,notFound);
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function _showImgReport(matched,notFound){
+  var rep=document.getElementById('img-import-report');
+  var body=document.getElementById('img-report-body');
+  rep.style.display='block';
+  var html='';
+  if(matched.length){
+    html+='<div style="color:var(--green);font-weight:700;margin-bottom:6px">✅ Abbinate ('+matched.length+')</div>';
+    html+=matched.map(function(f){return'<div style="padding:2px 0;border-bottom:1px solid var(--lg)">'+f+'</div>';}).join('');
+  }
+  if(notFound.length){
+    html+='<div style="color:var(--red);font-weight:700;margin:10px 0 6px">❌ Non trovate ('+notFound.length+')</div>';
+    html+=notFound.map(function(f){return'<div style="padding:2px 0;color:var(--dg)">'+f+'</div>';}).join('');
+  }
+  body.innerHTML=html;
+  var btn=document.getElementById('btn-do-import-img');
+  document.getElementById('img-count').textContent=matched.length;
+  btn.style.display=matched.length?'inline-flex':'none';
+}
+
+function _bindImportImg(){
+  var uz=document.getElementById('uz-imgs');
+  var fi=document.getElementById('fi-imgs');
+  uz.onclick=function(){fi.click();};
+  uz.ondragover=function(e){e.preventDefault();uz.classList.add('over');};
+  uz.ondragleave=function(){uz.classList.remove('over');};
+  uz.ondrop=function(e){
+    e.preventDefault();uz.classList.remove('over');
+    _processImageFiles(e.dataTransfer.files);
+  };
+  fi.onchange=function(){if(fi.files.length)_processImageFiles(fi.files);fi.value='';};
+  document.getElementById('btn-do-import-img').onclick=function(){
+    save();closeModal('import-img');render();
+    toast('✅ Immagini associate e salvate');
+  };
 }
 
 // ═══ FOTO ═════════════════════════════════════════════════════════
